@@ -11,13 +11,13 @@
 \usepackage[onehalfspacing]{setspace}
 \usepackage[a4paper,left=35mm,right=35mm,top=40mm,bottom=40mm]{geometry}
 
-\DeclareRobustCommand{\wdcbsd}{
+\newcommand{\wdcbsd}{
   \begingroup
   \setlength{\unitlength}{\fontcharht\font`T}
   \begin{picture}(1,1)
   \polygon(.5,0)(1,.5)(.5,1)(0,.5)
   \polygon*(.5,0.2)(.8,.5)(.5,.8)(.2,.5)
-  \end{picture}%
+  \end{picture}
   \endgroup
 }
 
