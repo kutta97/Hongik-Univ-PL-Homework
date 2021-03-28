@@ -1,4 +1,4 @@
-def quick_sort(list) -> list:
+def quick_sort(list):
 	if len(list) <= 1:
 		return list
 	pivot = list[len(list) // 2]

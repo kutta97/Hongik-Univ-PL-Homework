@@ -1,4 +1,4 @@
-def binary_search(list, target, low, high) -> int:
+def binary_search(list, target, low, high):
 	if low >= high:
 		return -1
 	mid = (low + high) // 2
