@@ -1,4 +1,4 @@
-def merge_sort(list):
+def merge_sort(list) -> list:
 	if len(list) < 2:
 		return list
 	mid = len(list) // 2
