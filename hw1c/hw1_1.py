@@ -8,8 +8,6 @@ def binary_search(list, target, low, high) -> int:
 		return mid
 	if list[mid] < target:
 		return binary_search(list, target, mid + 1, high)
-	else:
-		return -1
 
 list = list(map(int, input().split()))
 target = int(input())
