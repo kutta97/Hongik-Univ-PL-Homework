@@ -10,6 +10,8 @@ def data_encryption_analyis(data):
 			if data[i] == '1': 
 				while i < len(data) and data[i] == '1': i+= 1
 			else: print("PASS"); return
+			if i < len(data) and data[i] == '0': i -= 1
+			continue
 		if len(data[i:]) >= len("01") and data[i:i+2] == "01":
 			i += len("01"); continue
 		print("PASS"); return
