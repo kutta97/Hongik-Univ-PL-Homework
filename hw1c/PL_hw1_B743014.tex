@@ -1,0 +1,306 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+\documentclass{article}
+
+\usepackage{kotex}
+\usepackage[a4paper,left=35mm,right=35mm,top=40mm,bottom=40mm]{geometry}
+
+% Import Python Source Code into LaTex
+\usepackage{listings}
+\usepackage{color}
+
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{10}
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{10}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+morekeywords={self},
+keywordstyle=\ttb\color{deepblue},
+emph={binary_search,quick_sort, merge_sort, 
+preorder_traverse, _preorder_traverse,
+inorder_traverse, _inorder_traverse,
+postorder_traverse, _postorder_traverse, 
+__init__, lecture_sort, activity_selection,
+data_encryption_analyis},
+emphstyle=\ttb\color{deepred},
+stringstyle=\color{deepgreen},
+showstringspaces=false,
+frame=tb,
+tabsize=3
+}}
+\begin{document}
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+\title{프로그래밍 언어 HW1: Python}
+\author{B743014 양혜진}
+\date{\today}
+\maketitle
+
+\section{과제1: Binary Search(이진 탐색)}
+\begin{python}
+	def binary_search(list, target, low, high):
+		if low >= high:
+			return -1
+		mid = (low + high) // 2
+		if list[mid] > target:
+			return binary_search(list, target, low, mid)
+		if list[mid] == target:
+			return mid
+		if list[mid] < target:
+			return binary_search(list, target, mid + 1, high)
+\end{python}
+이진 탐색 알고리즘은 오름차순으로 정렬된 리스트에서 특정한 값의 위치를 찾는 알고리즘이다.
+	\begin{itemize}
+		\item 함수의 이름: binary\_search$()$
+		\item 함수의 파라미터: list, target, low, high
+		\begin{list}{--}{}
+			\item list: 탐색을 수행할 리스트
+			\item target: 탐색할 값
+			\item low: 최솟값의 인덱스$($함수 최초 시작 시 0$)$
+			\item high: 최댓값의 인덱스$($함수 최초 시작 시 len$($list$)$ - 1$)$
+		\end{list}
+		\item 함수 동작 방식 설명: 리스트의 중간에 있는 값을 골라 pivot 이라는 변수에
+		저장한다. 그 다음 pivot 보다 작은 값은 lesser 리스트에 저장하고, pivot 보다
+		큰 값은 greater 리스트에 저장하고, pivot 과 같은 값은 equal 리스트에 저장한다.
+		그 다음, lesser 리스트와 greater 리스트를 quick\_sort$()$ 함수의 인자로
+		전달하여 재귀 호출함으로써, lesser 과 greater 리스트들이 원소 한 개만 남을 때
+		까지 다시 더 큰값과 작은 값으로 분할한 다음, 합쳐진 값을 반환할 수 있도록 한다.
+	\end{itemize}
+
+
+\section{과제2: Quick Sort(퀵 정렬)}
+\begin{python}
+	def quick_sort(list):
+		if len(list) <= 1:
+			return list
+		pivot = list[len(list) // 2]
+		lesser, equal, greater = [], [], []
+		for i in list:
+			if i < pivot:
+				lesser.append(i)
+			elif i > pivot:
+				greater.append(i)
+			else:
+				equal.append(i)
+		return quick_sort(lesser) + equal + quick_sort(greater)
+\end{python}
+퀵 정렬은 분할 정복(divide and conquer) 방법을 통해 리스트를 정렬하는 알고리즘이다.
+합병 정렬(Merge Sort)과 달리 리스트를 비균등한 크기로 분할한다.
+	\begin{itemize}
+		\item 함수의 이름: quick\_sort$()$
+		\item 함수의 파라미터: list
+		\begin{list}{--}{}
+			\item list: 탐색을 수행할 리스트
+		\end{list}
+		\item 함수 동작 방식 설명: 리스트의 중간에 있는 값을 골라 pivot 이라는 변수에
+		저장한다. 그 다음 pivot 보다 작은 값은 lesser 리스트에 저장하고, pivot 보다
+		큰 값은 greater 리스트에 저장하고, pivot 과 같은 값은 equal 리스트에 저장한다.
+		그 다음, lesser 리스트와 greater 리스트를 quick\_sort$()$ 함수의 인자로
+		전달하여 재귀 호출함으로써, lesser 과 greater 리스트들이 원소 한 개만 남을 때
+		까지 다시 더 큰값과 작은 값으로 분할한 다음, 합쳐진 값을 반환할 수 있도록 한다.
+	\end{itemize}
+
+
+\section{과제3: Merge Sort(합병 정렬)}
+\begin{python}
+	def merge_sort(list):
+		if len(list) < 2:
+			return list
+		mid = len(list) // 2
+		low = merge_sort(list[:mid])
+		high = merge_sort(list[mid:])
+
+		merged = []
+		l = h = 0
+		while l < len(low) and h < len(high):
+			if low[l] < high[h]:
+				merged.append(low[l])
+				l += 1
+			else:
+				merged.append(high[h])
+				h += 1
+		merged += low[l:]
+		merged += high[h:]
+		return merged
+\end{python}
+합병 정렬은 분할 정복(divide and conquer) 방법을 통해 리스트를 정렬하는 알고리즘이다.
+퀵 정렬(Quick Sort)과 달리 리스트를 균등한 크기로 분할한다.
+	\begin{itemize}
+		\item 함수의 이름: merge\_sort$()$
+		\item 함수의 파라미터: list
+		\begin{list}{--}{}
+			\item list: 탐색을 수행할 리스트
+		\end{list}
+		\item 함수 동작 방식 설명: 리스트의 중간 인덱스 값을 구해, 리스트를 두 개의 균등한
+		크기로 분할하고, 분할된 리스트를 merge\_sort$()$의 인자로 전달하여 재귀 호출함으로써
+		리스트의 원소가 한 개만 남을 때까지 리스트를 분할하여 반환한다. 반환된 값은 차례로 low와
+		high 리스트에 들어가는데, low 와 high 리스트는 값이 크거나 작은 리스트가 아니라, 기존
+		의 리스트를 앞과 뒤로 나눈 리스트이다. low 와 high 에 값이 할당되면, 두 원소의 값의 크
+		기를 비교하여 merge 리스트에 정렬하여 저장한 다음 반환하도록 한다.
+	\end{itemize}
+
+
+\section{과제4: Binary Tree(이진 트리)}
+\begin{python}
+	class Node:
+		def __init__(self, data):
+			self.data = data
+			self.left = None
+			self.right = None
+
+	class BinaryTree():
+		def __init__(self):
+			self.root = None
+
+		def preorder_traverse(self):
+			print("Preorder Traverse")
+			self._preorder_traverse(self.root)
+
+		def _preorder_traverse(self, node):
+			if node is None: return
+			print(node.data)
+			self._preorder_traverse(node.left)
+			self._preorder_traverse(node.right)
+
+		def inorder_traverse(self):
+			print("Inorder Traverse")
+			self._inorder_traverse(self.root)
+
+		def _inorder_traverse(self, node):
+			if node is None: return
+			self._inorder_traverse(node.left)
+			print(node.data)
+			self._inorder_traverse(node.right)
+
+		def postorder_traverse(self):
+			print("Postorder Traverse")
+			self._postorder_traverse(self.root)
+
+		def _postorder_traverse(self, node):
+			if node is None: return
+			self._postorder_traverse(node.left)
+			self._postorder_traverse(node.right)
+			print(node.data)
+\end{python}
+이진 트리(Binary Tree)는 각각의 노드가 최대 두 개의 자식 노드를 가지는 트리형 자료구조이다.
+자식 노드를 각각 왼쪽 자식 노드와 오른쪽 자식노드라고 한다.
+	\begin{itemize}
+		\item 클래스의 이름: quick\_sort$()$
+		\item 클래스의 메서드: preorder\_traverse,inorder\_traverse, postorder\_traverse,
+		
+		\_preorder\_traverse, \_inorder\_traverse, \_postorder\_traverse
+		\begin{list}{--}{}
+			\item preorder\_traverse: 이진 트리를 전위 순회하는 함수
+			
+			부모 노드$($root$)$ -$>$ 왼쪽 자식 노드$($left$)$ -$>$ 오른쪽 자식 노드$($right$)$ 순서로 탐색
+			\item \_preorder\_traverse: 이진 트리 전위 순회를 재귀적 방식으로 구현하기 위해 선언한 함수.
+			재귀를 시작하기 전에 "Preorder Traverse" 를 출력한다.
+			\item inorder\_traverse: 이진 트리를 중위 순회하는 함수 
+			
+			왼쪽 자식 노드$($left$)$ -$>$ 부모 노드$($root$)$ -$>$ 오른쪽 자식 노드$($right$)$ 순서로 탐색
+			\item \_inorder\_traverse: 이진 트리 중위 순회를 재귀적 방식으로 구현하기 위해 선언한 함수.
+			재귀를 시작하기 전에 "Inorder Traverse" 를 출력한다.
+			\item postorder\_traverse: 이진 트리를 후위 순회하는 함수
+			
+			왼쪽 자식 노드$($left$)$ -$>$ 오른쪽 자식 노드$($right$)$  -$>$ 부모 노드$($root$)$순서로 탐색
+			\item \_postorder\_traverse: 이진 트리 후위 순회를 재귀적 방식으로 구현하기 위해 선언한 함수.
+			재귀를 시작하기 전에 "Inorder Traverse" 를 출력한다.
+		\end{list}
+		\item 함수 동작 방식 설명: 왼쪽 자식 노드(left)를 먼저 출력하고 오른쪽 자식 노드(right)를 그 다음에 출력하는
+		순서는 같으나, 이 사이에 부모 노드(root)의 데이터를 어느 시점에 출력할지 정하는 것에 따라 전위, 중위, 후위 순회
+		가 정해진다.
+	\end{itemize}
+
+
+\section{과제5: Acrivity Selection Problem(활동 선택 문제)}
+\begin{python}
+	NUM = 0; START = 1; END = 2
+
+	def lecture_sort(lectures, count):
+		if len(lectures) <= 1:
+			return lectures
+		pivot = lectures[count // 2][END]
+		lesser, equal, greater = [], [], []
+		for i in range(count):
+			if lectures[i][END] < pivot:
+				lesser.append(lectures[i])
+			elif lectures[i][END] > pivot:
+				greater.append(lectures[i])
+			else:
+				equal.append(lectures[i])
+		return lecture_sort(lesser, len(lesser)) 
+					+ equal + lecture_sort(greater, len(greater))
+
+	def activity_selection(lectures, count):
+		result = [lectures[0][NUM]]
+		before = 0
+		for i in range(1, count):
+			if lectures[i][START] >= lectures[before][END]:
+				result.append(lectures[i][NUM])
+				before = i
+		return result
+\end{python}
+활동 선택 문제(Activity Selection Problem)은 시작(start)과 끝(end) 시간이 있는 n 개의 활동이
+주어졌을 때, 한 번에 수행할 수 있는 최대 활동 수를 선택하는 문제로, 탐욕 알고리즘(Greedy Algorithm)
+을 사용하여 풀 수 있다. 활동 선택 문제는 종료 시간이 가장 빠른 활동부터 선택하는 것이 핵심이다.
+	\begin{itemize}
+		\item 함수의 이름: activity\_selection$()$
+		\item 함수의 파라미터: lectures, count
+		\begin{list}{--}{}
+			\item lectures: 강의 번호, 시작 시간, 종료 시간이 담긴 리스트들의 리스트(이중배열)
+			\item count: 강의의 개수
+		\end{list}
+		\item 함수 동작 방식 설명: 종료 시간이 가장 빠른 활동부터 차례대로 값을 비교하는 것이 좋기 때문에
+		각 활동들을 종료 시간 기준 오름차순으로 정렬한다. 그 다음, 정렬된 활동 중에서 첫 번째 활동을 선택하고,
+		나머지 활동들 중 시작 시간이 바로 직전에 선택한 활동의 종료시간보다 크거나 같은 경우 활동을 선택한다. 
+	\end{itemize}
+
+\section{과제6: Pattern Matching Algorithm(패턴 매칭 알고리즘)}
+\begin{python}
+	def data_encryption_analyis(data):
+		i = 0
+		while i < len(data):
+			if len(data[i:]) >= len("100") and data[i:i+3] == "100":
+				i += len("100")
+				while i < len(data) and data[i] == '0': i+= 1
+				if i == len(data): print("PASS"); return
+				if data[i] == '1': 
+					while i < len(data) and data[i] == '1': i+= 1
+				else: print("PASS"); return
+				if i < len(data) and 
+							data[i - 2] == '1' and data[i] == '0': i -= 1
+				continue
+			if len(data[i:]) >= len("01") and data[i:i+2] == "01":
+				i += len("01"); continue
+			print("PASS"); return
+		print("DANGER")
+\end{python}
+정규 표현식 또는 정규식은 특정한 규칙을 가진 문자열의 집합을 표현하는 데 사용하는 형식 언어이다.
+문자열에서 특정한 패턴이 매칭하는지를 검사하는 정규 표현식을 파이썬으로 직접 구현해보았다.
+과제6의 패턴을 정규표현식 규칙으로 표현하여 파이썬 코드로 작성한다면 다음과 같다. 파이썬으로
+정규표현식을 사용하기 위해서는 regex 라이브러리인 re 모듈을 import 해야한다.
+
+\begin{python}
+	import re
+	p = re.compile('10(0+)(1+)|01')
+
+	if p.match(input()): print("DANGER")
+	else: print("PASS")
+\end{python}
+
+\end{document}
+
+%------------------------------------------------
