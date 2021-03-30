@@ -1,6 +1,4 @@
-NUM = 0
-START = 1
-END = 2
+NUM = 0; START = 1; END = 2
 
 def lecture_sort(lectures, count):
 	if len(lectures) <= 1:
