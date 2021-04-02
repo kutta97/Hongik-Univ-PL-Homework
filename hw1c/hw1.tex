@@ -270,6 +270,34 @@ tabsize=3
 
 \section{과제6: Pattern Matching Algorithm(패턴 매칭 알고리즘)}
 \begin{python}
+	import re
+
+	count = int(input())
+	
+	data_set = []
+	for i in range(count):
+		data_set.append(input())
+	
+	for data in data_set:
+		if re.fullmatch('(100+1+|01)+', data): print("DANGER")
+		else: print("PASS")
+\end{python}
+정규 표현식 또는 정규식은 특정한 규칙을 가진 문자열의 집합을 표현하는 데 사용하는 형식 언어이다.
+문자열에서 특정한 패턴이 매칭하는지를 검사하는 정규 표현식을 파이썬으로 구현해보았다.
+파이썬으로 정규표현식을 사용하기 위해서는 regex 라이브러리인 re 모듈을 import 해야한다.
+과제6의 패턴을 정규표현식을 사용하지 않고 파이썬 코드로 작성한다면 아래와 같다.
+\begin{itemize}
+	\item 사용한 정규표현식(regex) 메타 문자(meta characters)
+	\begin{list}{--}{}
+		\item $|$ : or 과 동일한 의미로 사용된다. 만약 'A$|$B' 라는 정규식이 있다면 A 또는 B 라는 의미이다.
+		\item + : 최소 1번 이상 반복될 때 사용한다. * 는 반복 횟수가 0부터이지만, + 는 반복 횟수가 1부터 시작이다.
+	\end{list}
+	\item 사용한 컴파일된 패턴(pattern) 객체의 메서드
+	\begin{list}{--}{}
+		\item fullmatch() : 문자열의 처음부터 남는 부분 없이 정규식과 매치되는지 조사한다.
+	\end{list}
+\end{itemize}
+\begin{python}
 	def data_encryption_analyis(data):
 		i = 0
 		while i < len(data):
@@ -286,18 +314,6 @@ tabsize=3
 				i += len("01"); continue
 			print("PASS"); return
 		print("DANGER")
-\end{python}
-정규 표현식 또는 정규식은 특정한 규칙을 가진 문자열의 집합을 표현하는 데 사용하는 형식 언어이다.
-문자열에서 특정한 패턴이 매칭하는지를 검사하는 정규 표현식을 파이썬으로 직접 구현해보았다.
-과제6의 패턴을 정규표현식 규칙으로 표현하여 파이썬 코드로 작성한다면 다음과 같다. 파이썬으로
-정규표현식을 사용하기 위해서는 regex 라이브러리인 re 모듈을 import 해야한다.
-
-\begin{python}
-	import re
-	p = re.compile('10(0+)(1+)|01')
-
-	if p.match(input()): print("DANGER")
-	else: print("PASS")
 \end{python}
 
 \end{document}
