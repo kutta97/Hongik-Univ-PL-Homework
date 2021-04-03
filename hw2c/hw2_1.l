@@ -4,10 +4,10 @@
 int digitcount = 0;
 %}
 %%
-/* 규칙절(rule section) */
-999			{printf("%s is appeared\n", yytext);}
+	/* 규칙절(rule section) */
+999	{printf("%s is appeared\n", yytext);}
 ([0-9])+	{digitcount++;}
-\n			;
+\n	;
 %%
 
 /* 사용자 서브루틴절 */
