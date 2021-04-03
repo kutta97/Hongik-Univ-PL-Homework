@@ -15,15 +15,31 @@ int word = 0;
 int mark = 0;
 %}
 
-OCTAL	[0-7]
-WORD	[a-zA-Z]
-WHITESPACE	[\t ]
 %%
-^#[a-z]+	{preprocessor++;}
-^0[0-7]+	{octal_number++;}
-^-[0-9]+	{negative_decimal_number++;}
+#(.*)\n	{preprocessor++;}
+0[1-7][0-7]*	{octal_number++;}
+-[0-9]+	{negative_decimal_number++;}
 [0-9]+	{positive_decimal_number++;}
-[A-Za-z\.<>]+	{word++;}
+&{2}	{operator++;}
+\|{2}	{operator++;}
+!{2}	{operator++;}
+[=!>\<]{1}={1}	{operator++;}
+>{1}	{operator++;}
+\<{1}	{operator++;}
+\+{2}	{operator++;}
+\-{2}	{operator++;}
+,{1}	{operator++;}
+&[A-Za-z]	{operator++;}
+\*[A-Za-z]	{operator++;}
+[\+\-\*\/%]{1}	{operator++;}
+"//"(.*)\n {comment++;}
+"/*"([^\*]|(\*+[^\/]))*"*/" {comment++;}
+={1}	{equal_sign++;}
+\{	{lhs_bracket_sign++;}
+\}	{rhs_bracket_sign++;}
+[A-OQ-Za-oq-z]*p{2}[A-OQ-Za-oq-z]*	{wordcase1++;}
+e[A-Za-z]*m	{wordcase2++;}
+[A-Za-z]+	{word++;}
 \n|.	{mark++;}
 %%
 
@@ -37,7 +53,7 @@ int main() {
 	printf("comment = %d\n", comment);
 	printf("'=' = %d\n", equal_sign);
 	printf("'{' = %d\n", lhs_bracket_sign);
-	printf("'}'' = %d\n", rhs_bracket_sign);
+	printf("'}' = %d\n", rhs_bracket_sign);
 	printf("wordcase1 = %d\n", wordcase1);
 	printf("wordcase2 = %d\n", wordcase2);
 	printf("word = %d\n", word);
