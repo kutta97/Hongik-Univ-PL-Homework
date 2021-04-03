@@ -1,19 +1,16 @@
 %{
-/* 정의절(definition section) */
 #include <stdio.h>
-int digitcount = 0;
+int lovecount = 0;
 %}
+
 %%
-	/* 규칙절(rule section) */
-999	{printf("%s is appeared\n", yytext);}
-([0-9])+	{digitcount++;}
-\n	;
+(L|l)ove	{lovecount++;}
+.|\n	;
 %%
 
-/* 사용자 서브루틴절 */
 int main() {
 	yylex();
-	printf("digitcount : %d\n", digitcount);
+	printf("number of count=%d\n", lovecount);
 	return 0;
 }
 
