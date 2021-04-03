@@ -29,8 +29,8 @@ int mark = 0;
 \+{2}	{operator++;}
 \-{2}	{operator++;}
 ,{1}	{operator++;}
-&[A-Za-z]	{operator++;}
-\*[A-Za-z]	{operator++;}
+&{1}	{operator++;}
+\*{1}	{operator++;}
 [\+\-\*\/%]{1}	{operator++;}
 "//"(.*)\n {comment++;}
 "/*"([^\*]|(\*+[^\/]))*"*/" {comment++;}
