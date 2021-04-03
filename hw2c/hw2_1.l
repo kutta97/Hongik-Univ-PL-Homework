@@ -10,7 +10,7 @@ int lovecount = 0;
 
 int main() {
 	yylex();
-	printf("number of count=%d\n", lovecount);
+	printf("number of love=%d\n", lovecount);
 	return 0;
 }
 
