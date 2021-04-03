@@ -23,7 +23,7 @@ WHITESPACE	[\t ]
 ^0[0-7]+	{octal_number++;}
 ^-[0-9]+	{negative_decimal_number++;}
 [0-9]+	{positive_decimal_number++;}
-[A-Za-z]+	{word++;}
+[A-Za-z\.<>]+	{word++;}
 \n|.	{mark++;}
 %%
 
