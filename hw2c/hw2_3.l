@@ -30,21 +30,21 @@ WORD_NOT_P_START	[A-OQ-Za-oq-z_]
 (=|!|>|\<)=	{operator++;}
 \+{2}	{operator++;}
 \-{2}	{operator++;}
-!{1}	{operator++;}
->{1}	{operator++;}
-\<{1}	{operator++;}
-,{1}	{operator++;}
-&{1}	{operator++;}
-\*{1}	{operator++;}
+!	{operator++;}
+>	{operator++;}
+\<	{operator++;}
+,	{operator++;}
+&	{operator++;}
+\*	{operator++;}
 (\+|\-|\*|\/|%)	{operator++;}
 "//"(.*)\n {comment++;}
 "/*"([^\*]|(\*+[^\/]))*"*/" {comment++;}
-={1}	{equal_sign++;}
+=	{equal_sign++;}
 \{	{lhs_bracket_sign++;}
 \}	{rhs_bracket_sign++;}
 {WORD_NOT_P_START}*{WORD_NOT_P}*p{WORD_NOT_P}*p{WORD_NOT_P}*	{wordcase1++;}
 e{WORD}*m	{wordcase2++;}
-{WORD_START}{1}{WORD}*	{word++;}
+{WORD_START}{WORD}*	{word++;}
 \n|.	{mark++;}
 %%
 
