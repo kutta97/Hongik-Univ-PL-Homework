@@ -15,11 +15,16 @@ int word = 0;
 int mark = 0;
 %}
 
+DIGIT	[0-9]
+WORD	[0-9A-Za-z_]
+WORD_START	[A-Za-z_]
+WORD_NOT_P	[0-9A-OQ-Za-oq-z_]
+WORD_NOT_P_START	[A-OQ-Za-oq-z_]
 %%
 #(.*)\n	{preprocessor++;}
 0[1-7][0-7]*	{octal_number++;}
--[0-9]+	{negative_decimal_number++;}
-[0-9]+	{positive_decimal_number++;}
+-{DIGIT}+	{negative_decimal_number++;}
+{DIGIT}+	{positive_decimal_number++;}
 &{2}	{operator++;}
 \|{2}	{operator++;}
 !{2}	{operator++;}
@@ -37,9 +42,9 @@ int mark = 0;
 ={1}	{equal_sign++;}
 \{	{lhs_bracket_sign++;}
 \}	{rhs_bracket_sign++;}
-[A-OQ-Za-oq-z]*p{2}[A-OQ-Za-oq-z]*	{wordcase1++;}
-e[A-Za-z]*m	{wordcase2++;}
-[A-Za-z]+	{word++;}
+{WORD_NOT_P_START}*p{1}{WORD_NOT_P}*p{1}{WORD_NOT_P}*	{wordcase1++;}
+e{WORD}*m	{wordcase2++;}
+{WORD_START}{1}{WORD}*	{word++;}
 \n|.	{mark++;}
 %%
 
