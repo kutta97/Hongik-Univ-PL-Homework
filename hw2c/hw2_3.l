@@ -23,8 +23,8 @@ WORD_NOT_P_START	[A-OQ-Za-oq-z_]
 %%
 #(.*)\n	{preprocessor++;}
 0[1-7][0-7]*	{octal_number++;}
--{DIGIT}+	{negative_decimal_number++;}
-{DIGIT}+	{positive_decimal_number++;}
+-[1-9]{DIGIT}*	{negative_decimal_number++;}
+[1-9]{DIGIT}*	{positive_decimal_number++;}
 &{2}	{operator++;}
 \|{2}	{operator++;}
 (=|!|>|\<)=	{operator++;}
