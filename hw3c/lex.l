@@ -10,6 +10,8 @@ E			[Ee][+-]?{D}+
 FS			(f|F|l|L)
 IS			(u|U|l|L)*
 %%
+"//"(.*)\n 					{;}
+"/*"([^\*]|(\*+[^\/]))*"*/" {;}
 "auto"			{ return(AUTO); }
 "break"			{ return(BREAK); }
 "case"			{ return(CASE); }
@@ -17,6 +19,7 @@ IS			(u|U|l|L)*
 "const"			{ return(CONST); }
 "continue"		{ return(CONTINUE); }
 "default"		{ return(DEFAULT); }
+"define"		{ return(DEFINE); }
 "do"			{ return(DO); }
 "double"		{ return(DOUBLE); }
 "else"			{ return(ELSE); }
@@ -26,6 +29,7 @@ IS			(u|U|l|L)*
 "for"			{ return(FOR); }
 "goto"			{ return(GOTO); }
 "if"			{ return(IF); }
+"include"		{ return(INCLUDE); }
 "int"			{ return(INT); }
 "long"			{ return(LONG); }
 "register"		{ return(REGISTER); }
@@ -44,6 +48,8 @@ IS			(u|U|l|L)*
 "while"			{ return(WHILE); }
 
 {L}({L}|{D})*		{ return(IDENTIFIER); }
+
+{L}+"."h	{ return(HEADER); }
 
 0[xX]{H}+{IS}?		{ return(CONSTANT); }
 0{D}+{IS}?		{ return(CONSTANT); }
@@ -102,6 +108,7 @@ L?\"(\\.|[^\\"])*\"	{ return(STRING_LITERAL); }
 "^"			{ return('^'); }
 "|"			{ return('|'); }
 "?"			{ return('?'); }
+"#"			{ return('#'); }
 
 [ \t\v\n\f.]		{;}
 
