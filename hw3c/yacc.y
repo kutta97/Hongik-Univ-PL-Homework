@@ -12,7 +12,7 @@ int selection_count=0;
 int loop_count=0;
 int return_count=0;
 %}
-
+%token INCLUDE HEADER DEFINE
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
@@ -39,11 +39,11 @@ postfix_expression
 	: primary_expression
 	| postfix_expression '[' expression ']'
 	| postfix_expression '(' ')'
-	| postfix_expression '(' argument_expression_list ')'
-	| postfix_expression '.' IDENTIFIER
-	| postfix_expression PTR_OP IDENTIFIER
-	| postfix_expression INC_OP
-	| postfix_expression DEC_OP
+	| postfix_expression '(' argument_expression_list ')'	{ function_count++; }
+	| postfix_expression '.' IDENTIFIER	{ operator_count++; }
+	| postfix_expression PTR_OP IDENTIFIER	{ operator_count++; }
+	| postfix_expression INC_OP	{ operator_count++; }
+	| postfix_expression DEC_OP	{ operator_count++; }
 	;
 
 argument_expression_list
@@ -53,8 +53,8 @@ argument_expression_list
 
 unary_expression
 	: postfix_expression
-	| INC_OP unary_expression
-	| DEC_OP unary_expression
+	| INC_OP unary_expression	{ operator_count++; }
+	| DEC_OP unary_expression	{ operator_count++; }
 	| unary_operator cast_expression
 	| SIZEOF unary_expression
 	| SIZEOF '(' type_name ')'
@@ -62,74 +62,74 @@ unary_expression
 
 unary_operator
 	: '&'
-	| '*'
-	| '+'
-	| '-'
+	| '*'	{ operator_count++; }
+	| '+'	{ operator_count++; }
+	| '-'	{ operator_count++; }
 	| '~'
 	| '!'
 	;
 
 cast_expression
 	: unary_expression
-	| '(' type_name ')' cast_expression
+	| '(' type_name ')' cast_expression	{ operator_count++; }
 	;
 
 multiplicative_expression
 	: cast_expression
-	| multiplicative_expression '*' cast_expression
-	| multiplicative_expression '/' cast_expression
-	| multiplicative_expression '%' cast_expression
+	| multiplicative_expression '*' cast_expression	{ operator_count++; }
+	| multiplicative_expression '/' cast_expression	{ operator_count++; }
+	| multiplicative_expression '%' cast_expression	{ operator_count++; }
 	;
 
 additive_expression
 	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression
-	| additive_expression '-' multiplicative_expression
+	| additive_expression '+' multiplicative_expression	{ operator_count++; }
+	| additive_expression '-' multiplicative_expression	{ operator_count++; }
 	;
 
 shift_expression
 	: additive_expression
-	| shift_expression LEFT_OP additive_expression
-	| shift_expression RIGHT_OP additive_expression
+	| shift_expression LEFT_OP additive_expression	{ operator_count++; }
+	| shift_expression RIGHT_OP additive_expression	{ operator_count++; }
 	;
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression
-	| relational_expression '>' shift_expression
-	| relational_expression LE_OP shift_expression
-	| relational_expression GE_OP shift_expression
+	| relational_expression '<' shift_expression	{ operator_count++; }
+	| relational_expression '>' shift_expression	{ operator_count++; }
+	| relational_expression LE_OP shift_expression	{ operator_count++; }
+	| relational_expression GE_OP shift_expression	{ operator_count++; }
 	;
 
 equality_expression
 	: relational_expression
-	| equality_expression EQ_OP relational_expression
-	| equality_expression NE_OP relational_expression
+	| equality_expression EQ_OP relational_expression	{ operator_count++; }
+	| equality_expression NE_OP relational_expression	{ operator_count++; }
 	;
 
 and_expression
 	: equality_expression
-	| and_expression '&' equality_expression
+	| and_expression '&' equality_expression	{ operator_count++; }
 	;
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression
+	| exclusive_or_expression '^' and_expression	{ operator_count++; }
 	;
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression
+	| inclusive_or_expression '|' exclusive_or_expression	{ operator_count++; }
 	;
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression AND_OP inclusive_or_expression
+	| logical_and_expression AND_OP inclusive_or_expression	{ operator_count++; }
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression OR_OP logical_and_expression
+	| logical_or_expression OR_OP logical_and_expression	{ operator_count++; }
 	;
 
 conditional_expression
@@ -143,17 +143,17 @@ assignment_expression
 	;
 
 assignment_operator
-	: '='
-	| MUL_ASSIGN
-	| DIV_ASSIGN
-	| MOD_ASSIGN
-	| ADD_ASSIGN
-	| SUB_ASSIGN
-	| LEFT_ASSIGN
-	| RIGHT_ASSIGN
-	| AND_ASSIGN
-	| XOR_ASSIGN
-	| OR_ASSIGN
+	: '='			{ operator_count++; }
+	| MUL_ASSIGN	{ operator_count++; }
+	| DIV_ASSIGN	{ operator_count++; }
+	| MOD_ASSIGN	{ operator_count++; }
+	| ADD_ASSIGN	{ operator_count++; }
+	| SUB_ASSIGN	{ operator_count++; }
+	| LEFT_ASSIGN	{ operator_count++; }
+	| RIGHT_ASSIGN	{ operator_count++; }
+	| AND_ASSIGN	{ operator_count++; }
+	| XOR_ASSIGN	{ operator_count++; }
+	| OR_ASSIGN		{ operator_count++; }
 	;
 
 expression
@@ -186,7 +186,7 @@ init_declarator_list
 
 init_declarator
 	: declarator
-	| declarator '=' initializer
+	| declarator '=' initializer	{ operator_count++; }
 	;
 
 storage_class_specifier
@@ -199,9 +199,9 @@ storage_class_specifier
 
 type_specifier
 	: VOID
-	| CHAR
+	| CHAR	{ char_count++; }
 	| SHORT
-	| INT
+	| INT	{ int_count++; }
 	| LONG
 	| FLOAT
 	| DOUBLE
@@ -279,18 +279,18 @@ declarator
 direct_declarator
 	: IDENTIFIER
 	| '(' declarator ')'
-	| direct_declarator '[' constant_expression ']'
-	| direct_declarator '[' ']'
+	| direct_declarator '[' constant_expression ']'	{ array_count++; }
+	| direct_declarator '[' ']'						{ array_count++; }
 	| direct_declarator '(' parameter_type_list ')'
 	| direct_declarator '(' identifier_list ')'
 	| direct_declarator '(' ')'
 	;
 
 pointer
-	: '*'
-	| '*' type_qualifier_list
-	| '*' pointer
-	| '*' type_qualifier_list pointer
+	: '*'						{ pointer_count++; }
+	| '*' type_qualifier_list	{ pointer_count++; }
+	| '*' pointer				{ pointer_count++; }
+	| '*' type_qualifier_list pointer	{ pointer_count++; }
 	;
 
 type_qualifier_list
@@ -392,24 +392,23 @@ expression_statement
 	;
 
 selection_statement
-	: IF '(' expression ')' statement
-	| IF '(' expression ')' statement ELSE statement
-	| SWITCH '(' expression ')' statement
+	: IF '(' expression ')' statement					{ selection_count++; }
+	| SWITCH '(' expression ')' statement				{ selection_count++; }
 	;
 
 iteration_statement
-	: WHILE '(' expression ')' statement
-	| DO statement WHILE '(' expression ')' ';'
-	| FOR '(' expression_statement expression_statement ')' statement
-	| FOR '(' expression_statement expression_statement expression ')' statement
+	: WHILE '(' expression ')' statement		{ loop_count++; }
+	| DO statement WHILE '(' expression ')' ';'	{ loop_count++; }
+	| FOR '(' expression_statement expression_statement ')' statement				{ loop_count++; }
+	| FOR '(' expression_statement expression_statement expression ')' statement	{ loop_count++; }
 	;
 
 jump_statement
 	: GOTO IDENTIFIER ';'
 	| CONTINUE ';'
 	| BREAK ';'
-	| RETURN ';'
-	| RETURN expression ';'
+	| RETURN ';'			{ return_count++; }
+	| RETURN expression ';'	{ return_count++; }
 	;
 
 translation_unit
@@ -420,15 +419,21 @@ translation_unit
 external_declaration
 	: function_definition
 	| declaration
+	| preprocessor
 	;
 
 function_definition
-	: declaration_specifiers declarator declaration_list compound_statement
-	| declaration_specifiers declarator compound_statement
-	| declarator declaration_list compound_statement
-	| declarator compound_statement
+	: declaration_specifiers declarator declaration_list compound_statement { function_count++; }
+	| declaration_specifiers declarator compound_statement { function_count++; }
+	| declarator declaration_list compound_statement { function_count++; }
+	| declarator compound_statement	{ function_count++; }
 	;
 
+preprocessor
+	: '#' INCLUDE '<' HEADER '>'
+	| '#' INCLUDE '"' HEADER '"'
+	| '#' DEFINE IDENTIFIER CONSTANT
+	;
 %%
 
 int main(void)
