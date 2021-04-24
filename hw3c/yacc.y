@@ -2,15 +2,7 @@
 #include <stdio.h>
 int yylex();
 void yyerror(const char *s);
-int function_count=0;
-int operator_count=0;
-int int_count=0;
-int char_count=0;
-int pointer_count=0;
-int array_count=0;
-int selection_count=0;
-int loop_count=0;
-int return_count=0;
+int ary[9] = {0,0,0,0,0,0,0,0,0};
 %}
 %token INCLUDE HEADER DEFINE
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
@@ -39,11 +31,11 @@ postfix_expression
 	: primary_expression
 	| postfix_expression '[' expression ']'
 	| postfix_expression '(' ')'
-	| postfix_expression '(' argument_expression_list ')'	{ function_count++; }
-	| postfix_expression '.' IDENTIFIER	{ operator_count++; }
-	| postfix_expression PTR_OP IDENTIFIER	{ operator_count++; }
-	| postfix_expression INC_OP	{ operator_count++; }
-	| postfix_expression DEC_OP	{ operator_count++; }
+	| postfix_expression '(' argument_expression_list ')'	{ ary[0]++; }
+	| postfix_expression '.' IDENTIFIER	{ ary[1]++; }
+	| postfix_expression PTR_OP IDENTIFIER	{ ary[1]++; }
+	| postfix_expression INC_OP	{ ary[1]++; }
+	| postfix_expression DEC_OP	{ ary[1]++; }
 	;
 
 argument_expression_list
@@ -53,8 +45,8 @@ argument_expression_list
 
 unary_expression
 	: postfix_expression
-	| INC_OP unary_expression	{ operator_count++; }
-	| DEC_OP unary_expression	{ operator_count++; }
+	| INC_OP unary_expression	{ ary[1]++; }
+	| DEC_OP unary_expression	{ ary[1]++; }
 	| unary_operator cast_expression
 	| SIZEOF unary_expression
 	| SIZEOF '(' type_name ')'
@@ -62,74 +54,74 @@ unary_expression
 
 unary_operator
 	: '&'
-	| '*'	{ operator_count++; }
-	| '+'	{ operator_count++; }
-	| '-'	{ operator_count++; }
+	| '*'	{ ary[1]++; }
+	| '+'	{ ary[1]++; }
+	| '-'	{ ary[1]++; }
 	| '~'
 	| '!'
 	;
 
 cast_expression
 	: unary_expression
-	| '(' type_name ')' cast_expression	{ operator_count++; }
+	| '(' type_name ')' cast_expression	{ ary[1]++; }
 	;
 
 multiplicative_expression
 	: cast_expression
-	| multiplicative_expression '*' cast_expression	{ operator_count++; }
-	| multiplicative_expression '/' cast_expression	{ operator_count++; }
-	| multiplicative_expression '%' cast_expression	{ operator_count++; }
+	| multiplicative_expression '*' cast_expression	{ ary[1]++; }
+	| multiplicative_expression '/' cast_expression	{ ary[1]++; }
+	| multiplicative_expression '%' cast_expression	{ ary[1]++; }
 	;
 
 additive_expression
 	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression	{ operator_count++; }
-	| additive_expression '-' multiplicative_expression	{ operator_count++; }
+	| additive_expression '+' multiplicative_expression	{ ary[1]++; }
+	| additive_expression '-' multiplicative_expression	{ ary[1]++; }
 	;
 
 shift_expression
 	: additive_expression
-	| shift_expression LEFT_OP additive_expression	{ operator_count++; }
-	| shift_expression RIGHT_OP additive_expression	{ operator_count++; }
+	| shift_expression LEFT_OP additive_expression	{ ary[1]++; }
+	| shift_expression RIGHT_OP additive_expression	{ ary[1]++; }
 	;
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression	{ operator_count++; }
-	| relational_expression '>' shift_expression	{ operator_count++; }
-	| relational_expression LE_OP shift_expression	{ operator_count++; }
-	| relational_expression GE_OP shift_expression	{ operator_count++; }
+	| relational_expression '<' shift_expression	{ ary[1]++; }
+	| relational_expression '>' shift_expression	{ ary[1]++; }
+	| relational_expression LE_OP shift_expression	{ ary[1]++; }
+	| relational_expression GE_OP shift_expression	{ ary[1]++; }
 	;
 
 equality_expression
 	: relational_expression
-	| equality_expression EQ_OP relational_expression	{ operator_count++; }
-	| equality_expression NE_OP relational_expression	{ operator_count++; }
+	| equality_expression EQ_OP relational_expression	{ ary[1]++; }
+	| equality_expression NE_OP relational_expression	{ ary[1]++; }
 	;
 
 and_expression
 	: equality_expression
-	| and_expression '&' equality_expression	{ operator_count++; }
+	| and_expression '&' equality_expression	{ ary[1]++; }
 	;
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression	{ operator_count++; }
+	| exclusive_or_expression '^' and_expression	{ ary[1]++; }
 	;
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression	{ operator_count++; }
+	| inclusive_or_expression '|' exclusive_or_expression	{ ary[1]++; }
 	;
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression AND_OP inclusive_or_expression	{ operator_count++; }
+	| logical_and_expression AND_OP inclusive_or_expression	{ ary[1]++; }
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression OR_OP logical_and_expression	{ operator_count++; }
+	| logical_or_expression OR_OP logical_and_expression	{ ary[1]++; }
 	;
 
 conditional_expression
@@ -143,17 +135,17 @@ assignment_expression
 	;
 
 assignment_operator
-	: '='			{ operator_count++; }
-	| MUL_ASSIGN	{ operator_count++; }
-	| DIV_ASSIGN	{ operator_count++; }
-	| MOD_ASSIGN	{ operator_count++; }
-	| ADD_ASSIGN	{ operator_count++; }
-	| SUB_ASSIGN	{ operator_count++; }
-	| LEFT_ASSIGN	{ operator_count++; }
-	| RIGHT_ASSIGN	{ operator_count++; }
-	| AND_ASSIGN	{ operator_count++; }
-	| XOR_ASSIGN	{ operator_count++; }
-	| OR_ASSIGN		{ operator_count++; }
+	: '='			{ ary[1]++; }
+	| MUL_ASSIGN	{ ary[1]++; }
+	| DIV_ASSIGN	{ ary[1]++; }
+	| MOD_ASSIGN	{ ary[1]++; }
+	| ADD_ASSIGN	{ ary[1]++; }
+	| SUB_ASSIGN	{ ary[1]++; }
+	| LEFT_ASSIGN	{ ary[1]++; }
+	| RIGHT_ASSIGN	{ ary[1]++; }
+	| AND_ASSIGN	{ ary[1]++; }
+	| XOR_ASSIGN	{ ary[1]++; }
+	| OR_ASSIGN		{ ary[1]++; }
 	;
 
 expression
@@ -186,7 +178,7 @@ init_declarator_list
 
 init_declarator
 	: declarator
-	| declarator '=' initializer	{ operator_count++; }
+	| declarator '=' initializer	{ ary[1]++; }
 	;
 
 storage_class_specifier
@@ -199,9 +191,9 @@ storage_class_specifier
 
 type_specifier
 	: VOID
-	| CHAR	{ char_count++; }
+	| CHAR	{ ary[3]++; }
 	| SHORT
-	| INT	{ int_count++; }
+	| INT	{ ary[2]++; }
 	| LONG
 	| FLOAT
 	| DOUBLE
@@ -279,18 +271,18 @@ declarator
 direct_declarator
 	: IDENTIFIER
 	| '(' declarator ')'
-	| direct_declarator '[' constant_expression ']'	{ array_count++; }
-	| direct_declarator '[' ']'						{ array_count++; }
+	| direct_declarator '[' constant_expression ']'	{ ary[5]++; }
+	| direct_declarator '[' ']'						{ ary[5]++; }
 	| direct_declarator '(' parameter_type_list ')'
 	| direct_declarator '(' identifier_list ')'
 	| direct_declarator '(' ')'
 	;
 
 pointer
-	: '*'						{ pointer_count++; }
-	| '*' type_qualifier_list	{ pointer_count++; }
-	| '*' pointer				{ pointer_count++; }
-	| '*' type_qualifier_list pointer	{ pointer_count++; }
+	: '*'						{ ary[4]++; }
+	| '*' type_qualifier_list	{ ary[4]++; }
+	| '*' pointer				{ ary[4]++; }
+	| '*' type_qualifier_list pointer	{ ary[4]++; }
 	;
 
 type_qualifier_list
@@ -392,23 +384,23 @@ expression_statement
 	;
 
 selection_statement
-	: IF '(' expression ')' statement					{ selection_count++; }
-	| SWITCH '(' expression ')' statement				{ selection_count++; }
+	: IF '(' expression ')' statement					{ ary[6]++; }
+	| SWITCH '(' expression ')' statement				{ ary[6]++; }
 	;
 
 iteration_statement
-	: WHILE '(' expression ')' statement		{ loop_count++; }
-	| DO statement WHILE '(' expression ')' ';'	{ loop_count++; }
-	| FOR '(' expression_statement expression_statement ')' statement				{ loop_count++; }
-	| FOR '(' expression_statement expression_statement expression ')' statement	{ loop_count++; }
+	: WHILE '(' expression ')' statement		{ ary[7]++; }
+	| DO statement WHILE '(' expression ')' ';'	{ ary[7]++; }
+	| FOR '(' expression_statement expression_statement ')' statement				{ ary[7]++; }
+	| FOR '(' expression_statement expression_statement expression ')' statement	{ ary[7]++; }
 	;
 
 jump_statement
 	: GOTO IDENTIFIER ';'
 	| CONTINUE ';'
 	| BREAK ';'
-	| RETURN ';'			{ return_count++; }
-	| RETURN expression ';'	{ return_count++; }
+	| RETURN ';'			{ ary[8]++; }
+	| RETURN expression ';'	{ ary[8]++; }
 	;
 
 translation_unit
@@ -423,10 +415,10 @@ external_declaration
 	;
 
 function_definition
-	: declaration_specifiers declarator declaration_list compound_statement { function_count++; }
-	| declaration_specifiers declarator compound_statement { function_count++; }
-	| declarator declaration_list compound_statement { function_count++; }
-	| declarator compound_statement	{ function_count++; }
+	: declaration_specifiers declarator declaration_list compound_statement { ary[0]++; }
+	| declaration_specifiers declarator compound_statement { ary[0]++; }
+	| declarator declaration_list compound_statement { ary[0]++; }
+	| declarator compound_statement	{ ary[0]++; }
 	;
 
 preprocessor
@@ -439,15 +431,15 @@ preprocessor
 int main(void)
 {
 	yyparse();
-	printf("function = %d\n", function_count);
-	printf("operator = %d\n", operator_count);
-	printf("int = %d\n", int_count);
-	printf("char = %d\n", char_count);
-	printf("pointer = %d\n", pointer_count);
-	printf("array = %d\n", array_count);
-	printf("selection = %d\n", selection_count);
-	printf("loop = %d\n", loop_count);
-	printf("return = %d\n", return_count);
+	printf("function = %d\n", ary[0]);
+	printf("operator = %d\n", ary[1]);
+	printf("int = %d\n", ary[2]);
+	printf("char = %d\n", ary[3]);
+	printf("pointer = %d\n", ary[4]);
+	printf("array = %d\n", ary[5]);
+	printf("selection = %d\n", ary[6]);
+	printf("loop = %d\n", ary[7]);
+	printf("return = %d\n", ary[8]);
 	return 0;
 }
 
