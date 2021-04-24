@@ -22,7 +22,6 @@ IS			(u|U|l|L)*
 "define"		{ return(DEFINE); }
 "do"			{ return(DO); }
 "double"		{ return(DOUBLE); }
-"else"			{ return(ELSE); }
 "enum"			{ return(ENUM); }
 "extern"		{ return(EXTERN); }
 "float"			{ return(FLOAT); }
