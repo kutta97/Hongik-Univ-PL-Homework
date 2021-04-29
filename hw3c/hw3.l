@@ -15,7 +15,7 @@ IS			(u|U|l|L)*
 "auto"			{ return(AUTO); }
 "break"			{ return(BREAK); }
 "case"			{ return(CASE); }
-"char"			{ return(CHAR); }
+"char"			{ yylval.type = 3; return(CHAR); }
 "const"			{ return(CONST); }
 "continue"		{ return(CONTINUE); }
 "default"		{ return(DEFAULT); }
@@ -29,7 +29,7 @@ IS			(u|U|l|L)*
 "goto"			{ return(GOTO); }
 "if"			{ return(IF); }
 "include"		{ return(INCLUDE); }
-"int"			{ return(INT); }
+"int"			{ yylval.type = 2; return(INT); }
 "long"			{ return(LONG); }
 "register"		{ return(REGISTER); }
 "return"		{ return(RETURN); }

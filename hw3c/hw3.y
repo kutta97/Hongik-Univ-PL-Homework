@@ -1,9 +1,12 @@
 %{
 #include <stdio.h>
 int yylex();
+void check_declaration_specifiers(int type);
 void yyerror(const char *s);
 int ary[9] = {0,0,0,0,0,0,0,0,0};
 %}
+%union { int type; }
+%type <type> type_specifier declaration_specifiers init_declarator_list
 %token INCLUDE HEADER DEFINE
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
@@ -12,7 +15,7 @@ int ary[9] = {0,0,0,0,0,0,0,0,0};
 %token XOR_ASSIGN OR_ASSIGN TYPE_NAME
 
 %token TYPEDEF EXTERN STATIC AUTO REGISTER
-%token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
+%token <type> CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
 %token STRUCT UNION ENUM ELLIPSIS
 
 %token CASE DEFAULT IF SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
@@ -30,7 +33,7 @@ primary_expression
 postfix_expression
 	: primary_expression
 	| postfix_expression '[' expression ']'
-	| postfix_expression '(' ')'
+	| postfix_expression '(' ')' { ary[0]++; }
 	| postfix_expression '(' argument_expression_list ')'	{ ary[0]++; }
 	| postfix_expression '.' IDENTIFIER	{ ary[1]++; }
 	| postfix_expression PTR_OP IDENTIFIER	{ ary[1]++; }
@@ -159,21 +162,21 @@ constant_expression
 
 declaration
 	: declaration_specifiers ';'
-	| declaration_specifiers init_declarator_list ';'
+	| declaration_specifiers init_declarator_list ';' { ary[$1]--; }
 	;
 
 declaration_specifiers
-	: storage_class_specifier
-	| storage_class_specifier declaration_specifiers
-	| type_specifier
-	| type_specifier declaration_specifiers
-	| type_qualifier
-	| type_qualifier declaration_specifiers
+	: storage_class_specifier	{ $$ = 0; }
+	| storage_class_specifier declaration_specifiers	{ $$ = 0; }
+	| type_specifier	{ $$ = $1; }
+	| type_specifier declaration_specifiers	{ $$ = $1; }
+	| type_qualifier	{ $$ = 0; }
+	| type_qualifier declaration_specifiers	{ $$ = 0; }
 	;
 
 init_declarator_list
-	: init_declarator
-	| init_declarator_list ',' init_declarator
+	: init_declarator	{ ary[$$]++; }
+	| init_declarator_list ',' init_declarator { ary[$$]++; }
 	;
 
 init_declarator
@@ -190,18 +193,18 @@ storage_class_specifier
 	;
 
 type_specifier
-	: VOID
-	| CHAR	{ ary[3]++; }
-	| SHORT
-	| INT	{ ary[2]++; }
-	| LONG
-	| FLOAT
-	| DOUBLE
-	| SIGNED
-	| UNSIGNED
-	| struct_or_union_specifier
-	| enum_specifier
-	| TYPE_NAME
+	: VOID		{ $$ = 0; }
+	| CHAR		{ $$ = $1; ary[3]++; }
+	| SHORT		{ $$ = 0; }
+	| INT		{ $$ = $1; ary[2]++; }
+	| LONG		{ $$ = 0; }
+	| FLOAT		{ $$ = 0; }
+	| DOUBLE	{ $$ = 0; }
+	| SIGNED	{ $$ = 0; }
+	| UNSIGNED	{ $$ = 0; }
+	| struct_or_union_specifier	{ $$ = 0; }
+	| enum_specifier			{ $$ = 0; }
+	| TYPE_NAME					{ $$ = 0; }
 	;
 
 struct_or_union_specifier
@@ -366,6 +369,7 @@ compound_statement
 	| '{' statement_list '}'
 	| '{' declaration_list '}'
 	| '{' declaration_list statement_list '}'
+	| '{' declaration_list statement_list declaration_list '}'
 	;
 
 declaration_list
@@ -415,8 +419,14 @@ external_declaration
 	;
 
 function_definition
-	: declaration_specifiers declarator declaration_list compound_statement { ary[0]++; }
-	| declaration_specifiers declarator compound_statement { ary[0]++; }
+	: declaration_specifiers declarator declaration_list compound_statement {
+		ary[0]++;
+		check_declaration_specifiers($1);
+	}
+	| declaration_specifiers declarator compound_statement {
+		ary[0]++;
+		check_declaration_specifiers($1);
+	}
 	| declarator declaration_list compound_statement { ary[0]++; }
 	| declarator compound_statement	{ ary[0]++; }
 	;
@@ -441,6 +451,11 @@ int main(void)
 	printf("loop = %d\n", ary[7]);
 	printf("return = %d\n", ary[8]);
 	return 0;
+}
+
+void check_declaration_specifiers(int type)
+{
+	if (type) ary[type]--;
 }
 
 void yyerror(const char *str)
