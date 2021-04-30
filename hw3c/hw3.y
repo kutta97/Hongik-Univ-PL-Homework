@@ -162,7 +162,7 @@ constant_expression
 
 declaration
 	: declaration_specifiers ';'
-	| declaration_specifiers init_declarator_list ';' { ary[$1]--; }
+	| declaration_specifiers init_declarator_list ';'
 	;
 
 declaration_specifiers
@@ -175,7 +175,7 @@ declaration_specifiers
 	;
 
 init_declarator_list
-	: init_declarator	{ ary[$$]++; }
+	: init_declarator
 	| init_declarator_list ',' init_declarator { ary[$$]++; }
 	;
 
