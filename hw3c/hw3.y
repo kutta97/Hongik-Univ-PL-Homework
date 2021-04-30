@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 int yylex();
-void check_declaration_specifiers(int type);
+void check_type(int type);
 void yyerror(const char *s);
 int ary[9] = {0,0,0,0,0,0,0,0,0};
 int function_check = 0;
@@ -52,9 +52,9 @@ unary_expression
 	: postfix_expression
 	| INC_OP unary_expression	{ ary[1]++; }
 	| DEC_OP unary_expression	{ ary[1]++; }
-	| unary_operator cast_expression { if ($1) ary[$1]--; }
+	| unary_operator cast_expression { check_type($1); }
 	| SIZEOF unary_expression
-	| SIZEOF '(' type_name ')'	{ if ($3) ary[$3]--; }
+	| SIZEOF '(' type_name ')'	{ check_type($3); }
 	;
 
 unary_operator
@@ -68,7 +68,7 @@ unary_operator
 
 cast_expression
 	: unary_expression
-	| '(' type_name ')' cast_expression	{ ary[1]++; if ($2) ary[$2]--; }
+	| '(' type_name ')' cast_expression	{ ary[1]++; check_type($2); }
 	;
 
 multiplicative_expression
@@ -166,7 +166,7 @@ declaration
 	: declaration_specifiers ';'
 	| declaration_specifiers init_declarator_list ';' { 
 		if (function_check) {
-			check_declaration_specifiers($1); 
+			check_type($1); 
 			function_check = 0;
 		}
 	}
@@ -428,11 +428,11 @@ external_declaration
 function_definition
 	: declaration_specifiers declarator declaration_list compound_statement {
 		ary[0]++;
-		check_declaration_specifiers($1);
+		check_type($1);
 	}
 	| declaration_specifiers declarator compound_statement {
 		ary[0]++;
-		check_declaration_specifiers($1);
+		check_type($1);
 	}
 	| declarator declaration_list compound_statement { ary[0]++; }
 	| declarator compound_statement	{ ary[0]++; }
@@ -460,7 +460,7 @@ int main(void)
 	return 0;
 }
 
-void check_declaration_specifiers(int type)
+void check_type(int type)
 {
 	if (type) ary[type]--;
 }
