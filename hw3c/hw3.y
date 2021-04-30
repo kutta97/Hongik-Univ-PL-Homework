@@ -4,6 +4,7 @@ int yylex();
 void check_declaration_specifiers(int type);
 void yyerror(const char *s);
 int ary[9] = {0,0,0,0,0,0,0,0,0};
+int function_check = 0;
 %}
 %union { int type; }
 %type <type> type_specifier declaration_specifiers init_declarator_list
@@ -162,7 +163,12 @@ constant_expression
 
 declaration
 	: declaration_specifiers ';'
-	| declaration_specifiers init_declarator_list ';'
+	| declaration_specifiers init_declarator_list ';' { 
+		if (function_check) {
+			check_declaration_specifiers($1); 
+			function_check = 0;
+		}
+	}
 	;
 
 declaration_specifiers
@@ -175,13 +181,13 @@ declaration_specifiers
 	;
 
 init_declarator_list
-	: init_declarator
+	: init_declarator	{ ary[$$] = ary[$$]; }
 	| init_declarator_list ',' init_declarator { ary[$$]++; }
 	;
 
 init_declarator
 	: declarator
-	| declarator '=' initializer	{ ary[1]++; }
+	| declarator '=' initializer	{ ary[1]++; function_check = 0; }
 	;
 
 storage_class_specifier
@@ -240,9 +246,9 @@ struct_declarator_list
 	;
 
 struct_declarator
-	: declarator
+	: declarator							{ function_check = 0; }
 	| ':' constant_expression
-	| declarator ':' constant_expression
+	| declarator ':' constant_expression	{ function_check = 0; }
 	;
 
 enum_specifier
@@ -272,13 +278,13 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER
-	| '(' declarator ')'
+	: IDENTIFIER									{ function_check = 0; }
+	| '(' declarator ')'		
 	| direct_declarator '[' constant_expression ']'	{ ary[5]++; }
 	| direct_declarator '[' ']'						{ ary[5]++; }
-	| direct_declarator '(' parameter_type_list ')'
-	| direct_declarator '(' identifier_list ')'
-	| direct_declarator '(' ')'
+	| direct_declarator '(' parameter_type_list ')' { function_check = 1; }
+	| direct_declarator '(' identifier_list ')'		{ function_check = 1; }
+	| direct_declarator '(' ')'						{ function_check = 1; }
 	;
 
 pointer
