@@ -8,6 +8,7 @@ int function_check = 0;
 %}
 %union { int type; }
 %type <type> type_specifier declaration_specifiers init_declarator_list
+%type <type> unary_operator specifier_qualifier_list type_name
 %token INCLUDE HEADER DEFINE
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
@@ -51,23 +52,23 @@ unary_expression
 	: postfix_expression
 	| INC_OP unary_expression	{ ary[1]++; }
 	| DEC_OP unary_expression	{ ary[1]++; }
-	| unary_operator cast_expression
+	| unary_operator cast_expression { if ($1) ary[$1]--; }
 	| SIZEOF unary_expression
-	| SIZEOF '(' type_name ')'
+	| SIZEOF '(' type_name ')'	{ if ($3) ary[$3]--; }
 	;
 
 unary_operator
-	: '&'
-	| '*'	{ ary[1]++; }
-	| '+'	{ ary[1]++; }
-	| '-'	{ ary[1]++; }
-	| '~'
-	| '!'
+	: '&'	{ $$ = 0; }
+	| '*'	{ $$ = 0; ary[1]++; }
+	| '+'	{ $$ = 1; ary[1]++; }
+	| '-'	{ $$ = 1; ary[1]++; }
+	| '~'	{ $$ = 0; }
+	| '!'	{ $$ = 0; }
 	;
 
 cast_expression
 	: unary_expression
-	| '(' type_name ')' cast_expression	{ ary[1]++; }
+	| '(' type_name ')' cast_expression	{ ary[1]++; if ($2) ary[$2]--; }
 	;
 
 multiplicative_expression
@@ -234,10 +235,10 @@ struct_declaration
 	;
 
 specifier_qualifier_list
-	: type_specifier specifier_qualifier_list
-	| type_specifier
-	| type_qualifier specifier_qualifier_list
-	| type_qualifier
+	: type_specifier specifier_qualifier_list	{ $$ = $1; }
+	| type_specifier							{ $$ = $1; }
+	| type_qualifier specifier_qualifier_list	{ $$ = 0; }
+	| type_qualifier							{ $$ = 0; }
 	;
 
 struct_declarator_list
@@ -322,8 +323,8 @@ identifier_list
 	;
 
 type_name
-	: specifier_qualifier_list
-	| specifier_qualifier_list abstract_declarator
+	: specifier_qualifier_list						{ $$ = $1; }
+	| specifier_qualifier_list abstract_declarator	{ $$ = $1; }
 	;
 
 abstract_declarator
