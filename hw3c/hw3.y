@@ -8,7 +8,7 @@ int function_check = 0;
 %}
 %union { int type; }
 %type <type> type_specifier declaration_specifiers init_declarator_list
-%type <type> unary_operator specifier_qualifier_list type_name
+%type <type> specifier_qualifier_list type_name
 %token INCLUDE HEADER DEFINE
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
@@ -52,18 +52,18 @@ unary_expression
 	: postfix_expression
 	| INC_OP unary_expression	{ ary[1]++; }
 	| DEC_OP unary_expression	{ ary[1]++; }
-	| unary_operator cast_expression { check_type($1); }
+	| unary_operator cast_expression
 	| SIZEOF unary_expression
 	| SIZEOF '(' type_name ')'	{ check_type($3); }
 	;
 
 unary_operator
-	: '&'	{ $$ = 0; }
-	| '*'	{ $$ = 0; ary[1]++; }
-	| '+'	{ $$ = 1; ary[1]++; }
-	| '-'	{ $$ = 1; ary[1]++; }
-	| '~'	{ $$ = 0; }
-	| '!'	{ $$ = 0; }
+	: '&'
+	| '*'
+	| '+'
+	| '-'
+	| '~'
+	| '!'
 	;
 
 cast_expression
