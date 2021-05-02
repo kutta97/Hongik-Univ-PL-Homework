@@ -1256,6 +1256,16 @@ C 선언 부분과 YACC 선언 부분으로 나눌 수 있다.
 			;
 		\end{lstlisting}
 		return 토큰이 사용되면 return 을 카운트해주었다.
+
+		\item {\bf 규칙절 : 전처리문 처리}
+		\begin{lstlisting}
+		preprocessor
+			: '#' INCLUDE '<' HEADER '>'
+			| '#' INCLUDE '"' HEADER '"'
+			| '#' DEFINE IDENTIFIER CONSTANT
+			;
+		\end{lstlisting}
+		전처리문을 처리할 수 있는 문법을 만들어 사용했다.
 	\end{itemize}
 
 	\item 사용자 서브루틴절(User Subroutines)	
