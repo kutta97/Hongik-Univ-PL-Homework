@@ -183,7 +183,7 @@ declaration_specifiers
 
 init_declarator_list
 	: init_declarator	{ ary[$$] = ary[$$]; }
-	| init_declarator_list ',' init_declarator { ary[$$]++; }
+	| init_declarator_list ',' init_declarator { if ($$) ary[$$]++; }
 	;
 
 init_declarator
