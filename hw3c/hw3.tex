@@ -973,23 +973,297 @@ C 선언 부분과 YACC 선언 부분으로 나눌 수 있다.
 
 	\item 규칙절(Rules Section)	
 	\begin{itemize}
-		\item {\bf 규칙절 : external declaration}
-		\begin{lstlisting}
-		external_declaration
-			: function_definition
-			| declaration
-			| preprocessor
-			;
-		\end{lstlisting}
+		\item {\bf 규칙절 : function 카운트}
+		\begin{itemize}
+			\item {\bf 함수의 반환형 : declaration\_specifiers}
+			\begin{lstlisting}
+				declaration_specifiers
+					: storage_class_specifier	{ $$ = 0; }
+					| storage_class_specifier declaration_specifiers	{ $$ = 0; }
+					| type_specifier	{ $$ = $1; }
+					| type_specifier declaration_specifiers	{ $$ = $1; }
+					| type_qualifier	{ $$ = 0; }
+					| type_qualifier declaration_specifiers	{ $$ = 0; }
+					;
+			\end{lstlisting}
+			declaration\_specifiers symbol 이 function\_definition 에서 사용된 경우,
+			만약 type\_specifier가 CHAR 이나 INT 로부터 reduce 된 symbol이면 type\_specifier
+			문법에서 카운트 했던 INT 또는 CHAR 의 개수를 취소시켜주어야 한다. 그래서 type\_specifier 가
+			declaration\_specifiers 로 reduce 되는 경우 type\_specifier 의 값(type)을
+			declaration\_specifiers 의 값에 대입해주고, 그 외의 경우에는 declaration\_specifiers 의 값을
+			0으로 할당해주었다.
 
-		\item {\bf 규칙절 : 전처리기}
+			\item {\bf 함수의 이름 : declarator}
+			\begin{lstlisting}
+				declarator
+					: pointer direct_declarator
+					| direct_declarator
+					;
+
+				direct_declarator
+					: IDENTIFIER									{ function_check = 0; }
+					| '(' declarator ')'		
+					| direct_declarator '[' constant_expression ']'	{ ary[5]++; }
+					| direct_declarator '[' ']'						{ ary[5]++; }
+					| direct_declarator '(' parameter_type_list ')' { function_check = 1; }
+					| direct_declarator '(' identifier_list ')'		{ function_check = 1; }
+					| direct_declarator '(' ')'						{ function_check = 1; }
+					;
+			\end{lstlisting}
+			declarator\_symbol 은 함수 선언 부에서 함수이름과 파라미터의 괄호 부분이다.
+			함수의 이름 부분은 lex 에서 IDENTIFIER 토큰으로 반환되고, 이름 뒤에 괄호가 붙고 괄호 안에 파라미터
+			또는 자료형 리스트가 들어있는 경우 fuction\_check 의 변수 값을 1로 체크해둔다. 만약 함수의 몸체 정의 없이
+			함수의 선언만 존재하는 경우에는 토큰들이 declaration symbol 으로 reduce 되는데, declaration symbol이
+			함수의 선언 문법의 토큰들로 부터 reduce된 것인지, 아니면 다른 변수 선언 문법의 토큰들로부터 reduce된 것인지
+			확인하기 위해 함수 선언 형태의 문법으로부터 direct\_declarator 가 reduce 되었음을 function\_check
+			변수에 저장해두는 것이다.
+
+			\item {\bf 함수의 몸체 : compound\_statement}
+			\begin{lstlisting}
+			compound_statement
+				: '{' '}'
+				| '{' statement_list '}'
+				| '{' declaration_list '}'
+				| '{' declaration_list statement_list '}'
+				| '{' declaration_list statement_list declaration_list '}'
+				;
+			\end{lstlisting}
+			중괄호로 둘러쌓여 있는 함수의 몸체 부분의 문법은 compound\_statement symbol 로 reduce 된다.
+			변수와 함수의 전방선언 symbol 인 declaration\_list 가 statement\_list 후에도 나타날 수 있도록 했다.
+
+			\item {\bf 함수의 선언}
+			\begin{lstlisting}
+				function_definition
+					: declaration_specifiers declarator declaration_list compound_statement {
+						ary[0]++;
+						check_type($1);
+					}
+					| declaration_specifiers declarator compound_statement {
+						ary[0]++;
+						check_type($1);
+					}
+					| declarator declaration_list compound_statement { ary[0]++; }
+					| declarator compound_statement	{ ary[0]++; }
+					;
+			\end{lstlisting}
+			함수의 선언 형태가 최종적으로 reduce 되는 symbol 인 function\_definition 의 문법이다.
+		
+			\item {\bf 함수의 사용}
+			\begin{lstlisting}
+			primary_expression
+				: IDENTIFIER
+				| CONSTANT
+				| STRING_LITERAL
+				| '(' expression ')'
+				;
+
+			postfix_expression
+				: primary_expression
+				| postfix_expression '[' expression ']'
+				| postfix_expression '(' ')' { ary[0]++; }
+				| postfix_expression '(' argument_expression_list ')'	{ ary[0]++; }
+				| postfix_expression '.' IDENTIFIER	{ ary[1]++; }
+				| postfix_expression PTR_OP IDENTIFIER	{ ary[1]++; }
+				| postfix_expression INC_OP	{ ary[1]++; }
+				| postfix_expression DEC_OP	{ ary[1]++; }
+				;
+			\end{lstlisting}
+			함수를 사용하는 경우, 인자가 없는 함수는 postfix\_expression '(' ')' 문법에서 postfix\_expression
+			symbol로 reduce되고, 인자가 있는 함수는 postfix\_ expression '(' argument\_expression\_list ')'
+			문법에서 postfix\_expression symbol로 reduce된다. 이 경우 function 의 카운트를 증가시켜주었다.
+		\end{itemize}
+
+		\item {\bf 규칙절 : operator 카운트}
+		\begin{itemize}
+			\item {\bf 단항 연산자}
+			\begin{lstlisting}
+			unary_operator
+				: '&'	{ $$ = 0; }
+				| '*'	{ $$ = 0; ary[1]++; }
+				| '+'	{ $$ = 1; ary[1]++; }
+				| '-'	{ $$ = 1; ary[1]++; }
+				| '~'	{ $$ = 0; }
+				| '!'	{ $$ = 0; }
+				;
+
+			unary_expression
+				: postfix_expression
+				| INC_OP unary_expression	{ ary[1]++; }
+				| DEC_OP unary_expression	{ ary[1]++; }
+				| unary_operator cast_expression { check_type($1); }
+				| SIZEOF unary_expression
+				| SIZEOF '(' type_name ')'	{ check_type($3); }
+				;
+			\end{lstlisting} 
+			단항 연산자의 경우, 증감 연산자를 제외하고는 operator 를 카운트하면 안된다.
+			예를들어 단항 연산자가 부호의 사용된 경우에는 operator 의 카운트를 취소해주어야 한다.
+
+			\item {\bf 캐스트 연산자}
+			\begin{lstlisting}
+			cast_expression
+				: unary_expression
+				| '(' type_name ')' cast_expression	{ ary[1]++; check_type($2); }
+				;
+			\end{lstlisting}
+			캐스트 연산자의 경우에도 operator 카운트를 1 증가시켜주어야하지만, cast 연산자 안에
+			CHAR 또는 INT 토큰이 들어온 경우, CHAR 또는 INT 의 카운트를 취소시켜주어야 한다.
+			
+			\item {\bf 이항 연산자와 대입 연산자}
+			\begin{lstlisting}
+			multiplicative_expression
+				: cast_expression
+				| multiplicative_expression '*' cast_expression	{ ary[1]++; }
+				| multiplicative_expression '/' cast_expression	{ ary[1]++; }
+				| multiplicative_expression '%' cast_expression	{ ary[1]++; }
+				;
+
+			additive_expression
+				: multiplicative_expression
+				| additive_expression '+' multiplicative_expression	{ ary[1]++; }
+				| additive_expression '-' multiplicative_expression	{ ary[1]++; }
+				;
+
+			shift_expression
+				: additive_expression
+				| shift_expression LEFT_OP additive_expression	{ ary[1]++; }
+				| shift_expression RIGHT_OP additive_expression	{ ary[1]++; }
+				;
+
+			relational_expression
+				: shift_expression
+				| relational_expression '<' shift_expression	{ ary[1]++; }
+				| relational_expression '>' shift_expression	{ ary[1]++; }
+				| relational_expression LE_OP shift_expression	{ ary[1]++; }
+				| relational_expression GE_OP shift_expression	{ ary[1]++; }
+				;
+
+			equality_expression
+				: relational_expression
+				| equality_expression EQ_OP relational_expression	{ ary[1]++; }
+				| equality_expression NE_OP relational_expression	{ ary[1]++; }
+				;
+
+			and_expression
+				: equality_expression
+				| and_expression '&' equality_expression	{ ary[1]++; }
+				;
+
+			exclusive_or_expression
+				: and_expression
+				| exclusive_or_expression '^' and_expression	{ ary[1]++; }
+				;
+
+			inclusive_or_expression
+				: exclusive_or_expression
+				| inclusive_or_expression '|' exclusive_or_expression	{ ary[1]++; }
+				;
+
+			logical_and_expression
+				: inclusive_or_expression
+				| logical_and_expression AND_OP inclusive_or_expression	{ ary[1]++; }
+				;
+
+			logical_or_expression
+				: logical_and_expression
+				| logical_or_expression OR_OP logical_and_expression	{ ary[1]++; }
+				;
+
+			assignment_operator
+				: '='			{ ary[1]++; }
+				| MUL_ASSIGN	{ ary[1]++; }
+				| DIV_ASSIGN	{ ary[1]++; }
+				| MOD_ASSIGN	{ ary[1]++; }
+				| ADD_ASSIGN	{ ary[1]++; }
+				| SUB_ASSIGN	{ ary[1]++; }
+				| LEFT_ASSIGN	{ ary[1]++; }
+				| RIGHT_ASSIGN	{ ary[1]++; }
+				| AND_ASSIGN	{ ary[1]++; }
+				| XOR_ASSIGN	{ ary[1]++; }
+				| OR_ASSIGN		{ ary[1]++; }
+				;
+			\end{lstlisting}
+			모든 이항 연산자와 대입연산자의 사용시 operator 를 카운트해주었다.
+		\end{itemize}
+
+		\item {\bf 규칙절 : int, char 카운트}
 		\begin{lstlisting}
-		external_declaration
-			: function_definition
-			| declaration
-			| preprocessor
+			type_specifier
+				: VOID		{ $$ = 0; }
+				| CHAR		{ $$ = $1; ary[3]++; }
+				| SHORT		{ $$ = 0; }
+				| INT		{ $$ = $1; ary[2]++; }
+				| LONG		{ $$ = 0; }
+				| FLOAT		{ $$ = 0; }
+				| DOUBLE	{ $$ = 0; }
+				| SIGNED	{ $$ = 0; }
+				| UNSIGNED	{ $$ = 0; }
+				| struct_or_union_specifier	{ $$ = 0; }
+				| enum_specifier			{ $$ = 0; }
+				| TYPE_NAME					{ $$ = 0; }
+				;
+		\end{lstlisting}
+		int 와 char 변수 선언 시 int 와 char 의 카운트를 증가시켜준다.
+		만약 int 와 char 를 변수 선언이 아닌 다른 곳(함수의 반환형이나 캐스트 연산자)에
+		사용하는 경우에는 int 와 char 의 카운트를 취소해주어야 하므로, check\_int()라는
+		함수를 호출하여 카운트를 취소해 주었다. 
+
+		\item {\bf 규칙절 : pointer 카운트}
+		\begin{lstlisting}
+			pointer
+				: '*'						{ ary[4]++; }
+				| '*' type_qualifier_list	{ ary[4]++; }
+				| '*' pointer				{ ary[4]++; }
+				| '*' type_qualifier_list pointer	{ ary[4]++; }
+				;
+		\end{lstlisting}
+		포인터 사용시 pointer 카운트를 1 증가시켜주었다.
+
+		\item {\bf 규칙절 : array 카운트}
+		\begin{lstlisting}
+		direct_declarator
+			: IDENTIFIER									{ function_check = 0; }
+			| '(' declarator ')'		
+			| direct_declarator '[' constant_expression ']'	{ ary[5]++; }
+			| direct_declarator '[' ']'						{ ary[5]++; }
+			| direct_declarator '(' parameter_type_list ')' { function_check = 1; }
+			| direct_declarator '(' identifier_list ')'		{ function_check = 1; }
+			| direct_declarator '(' ')'						{ function_check = 1; }
 			;
 		\end{lstlisting}
+		변수 또는 함수의 선언부의 문법인 direct\_declarator 에서 만약 '[' 와 ']'기호를 사용하는 경우에는
+		array 의 카운트를 1 증가시켰다.
+
+		\item {\bf 규칙절 : selection 카운트}
+		\begin{lstlisting}
+		selection_statement
+			: IF '(' expression ')' statement					{ ary[6]++; }
+			| SWITCH '(' expression ')' statement				{ ary[6]++; }
+			;
+		\end{lstlisting}
+		if 문 또는 switch 문 사용시 selection 을 카운트해주었다.
+
+		\item {\bf 규칙절 : loop 카운트}
+		\begin{lstlisting}
+		iteration_statement
+			: WHILE '(' expression ')' statement		{ ary[7]++; }
+			| DO statement WHILE '(' expression ')' ';'	{ ary[7]++; }
+			| FOR '(' expression_statement expression_statement ')' statement				{ ary[7]++; }
+			| FOR '(' expression_statement expression_statement expression ')' statement	{ ary[7]++; }
+			;
+		\end{lstlisting}
+		for 문, while 문, do while 문 사용시 loop 를 카운트해주었다.
+
+		\item {\bf 규칙절 : return 카운트}
+		\begin{lstlisting}
+		jump_statement
+			: GOTO IDENTIFIER ';'
+			| CONTINUE ';'
+			| BREAK ';'
+			| RETURN ';'			{ ary[8]++; }
+			| RETURN expression ';'	{ ary[8]++; }
+			;
+		\end{lstlisting}
+		return 토큰이 사용되면 return 을 카운트해주었다.
 	\end{itemize}
 
 	\item 사용자 서브루틴절(User Subroutines)	
@@ -1021,6 +1295,7 @@ C 선언 부분과 YACC 선언 부분으로 나눌 수 있다.
 			if (type) ary[type]--;
 		}
 		\end{lstlisting}
+		만약 type 의 값이 0 이 아니면, ary 에서 해당 타입의 카운트를 취소해주는 함수이다.
 		
 		\item {\bf yyerror() 함수}
 		\begin{lstlisting}
