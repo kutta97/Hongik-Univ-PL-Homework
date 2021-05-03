@@ -373,20 +373,22 @@ labeled_statement
 
 compound_statement
 	: '{' '}'
-	| '{' statement_list '}'
-	| '{' declaration_list '}'
-	| '{' declaration_list statement_list '}'
-	| '{' declaration_list statement_list declaration_list '}'
+	| '{' compound_item_list '}'
+	;
+
+compound_item_list
+	: compound_item
+	| compound_item_list compound_item
+	;
+
+compound_item
+	: declaration
+	| statement
 	;
 
 declaration_list
 	: declaration
 	| declaration_list declaration
-	;
-
-statement_list
-	: statement
-	| statement_list statement
 	;
 
 expression_statement
