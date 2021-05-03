@@ -439,7 +439,7 @@ C 선언 부분과 YACC 선언 부분으로 나눌 수 있다.
 
 \subsection{hw3.y 소스 코드}
 \begin{lstlisting}
-		%{
+	%{
 		#include <stdio.h>
 		int yylex();
 		void check_type(int type);
@@ -449,7 +449,7 @@ C 선언 부분과 YACC 선언 부분으로 나눌 수 있다.
 		%}
 		%union { int type; }
 		%type <type> type_specifier declaration_specifiers init_declarator_list
-		%type <type> unary_operator specifier_qualifier_list type_name
+		%type <type> specifier_qualifier_list type_name
 		%token INCLUDE HEADER DEFINE
 		%token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
 		%token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
@@ -624,7 +624,7 @@ C 선언 부분과 YACC 선언 부분으로 나눌 수 있다.
 		
 		init_declarator_list
 			: init_declarator	{ ary[$$] = ary[$$]; }
-			| init_declarator_list ',' init_declarator { ary[$$]++; }
+			| init_declarator_list ',' init_declarator { if ($$) ary[$$]++; }
 			;
 		
 		init_declarator
@@ -814,20 +814,22 @@ C 선언 부분과 YACC 선언 부분으로 나눌 수 있다.
 		
 		compound_statement
 			: '{' '}'
-			| '{' statement_list '}'
-			| '{' declaration_list '}'
-			| '{' declaration_list statement_list '}'
-			| '{' declaration_list statement_list declaration_list '}'
+			| '{' compound_item_list '}'
+			;
+		
+		compound_item_list
+			: compound_item
+			| compound_item_list compound_item
+			;
+		
+		compound_item
+			: declaration
+			| statement
 			;
 		
 		declaration_list
 			: declaration
 			| declaration_list declaration
-			;
-		
-		statement_list
-			: statement
-			| statement_list statement
 			;
 		
 		expression_statement
