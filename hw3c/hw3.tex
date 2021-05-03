@@ -1049,7 +1049,7 @@ C 선언 부분과 YACC 선언 부분으로 나눌 수 있다.
 			전방선언을 하지 않고도 위치에 상관없이 변수와 함수를 선언할 수 있도록 하였다. 이 때, 기존의 statement\_list
 			symbol rule 은 제거해야하는데, 그렇지 않으면 shift/reduce 에러가 발생한다.
 
-			\item {\bf 함수의 선언}
+			\item {\bf 함수의 선언과 정의}
 			\begin{lstlisting}
 				function_definition
 					: declaration_specifiers declarator declaration_list compound_statement {
@@ -1064,7 +1064,27 @@ C 선언 부분과 YACC 선언 부분으로 나눌 수 있다.
 					| declarator compound_statement	{ ary[0]++; }
 					;
 			\end{lstlisting}
-			함수의 선언 형태가 최종적으로 reduce 되는 symbol 인 function\_definition 의 문법이다.
+			함수가 선언과 함께 정의된 경우 최종적으로 reduce 되는 symbol 인 function\_definition 의 문법이다.
+			compound\_statement 는 함수의 몸체 symbol 이다.
+
+			\item {\bf 함수의 선언}
+			\begin{lstlisting}
+				declaration
+					: declaration_specifiers ';'
+					| declaration_specifiers init_declarator_list ';' { 
+						if (function_check) {
+							check_type($1); 
+							function_check = 0;
+						}
+					}
+					;
+			\end{lstlisting}
+			함수가 정의되지 않고, 선언만 된 경우(prototype)에는 함수의 개수를 카운트해주지 않는다. 함수가 선언만 되고
+			정의되지 않은 경우는 고려하지 않기 때문이다. 따라서 함수의 정의가 있으면, 함수의 선언은 무조건 존재하는 것으로
+			간주했다. 그 대신 함수의 선언 부분에서도 함수의 반환형의 type 이 int 이거나 char 인 경우 int 또는 char
+			의 카운트를 취소해야하기 때문에, 함수로부터 declaration symbol으로 reduce 되었는지를 확인하는
+			function\_check 함수를 사용해서 만약 함수로부터 declaration symbol으로 reduce 되었다면,
+			check\_type() 함수를 사용해서 해당 타입의 카운트를 취소하도록 했다.
 		
 			\item {\bf 함수의 사용}
 			\begin{lstlisting}
