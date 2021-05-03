@@ -6,6 +6,7 @@
 \usepackage{kotex}
 \usepackage[a4paper,left=35mm,right=35mm,top=40mm,bottom=40mm]{geometry}
 
+\usepackage{graphicx}
 \usepackage{listings}
 \usepackage{color}
 
@@ -1307,6 +1308,74 @@ C 선언 부분과 YACC 선언 부분으로 나눌 수 있다.
 		}
 		\end{lstlisting}
 	\end{itemize}
+\end{itemize}
+
+\section{리눅스 환경 구축}
+맥 os 의 터미널 개발환경에서 iTerm2 를 설치하여 리눅스 환경을 구축하고 yacc 과제를 진행했다.
+\subsection{홈브류(Homebrew) 설치}
+홈브류는 맥 OS 용 패키지 관리 어플리케이션이다.
+홈브류는 주로 커맨드라인 도구나 시스템 패키지들을 설치하는 데 사용한다.
+커맨드 라인에서 사용가능한 맥 OS 용 패키지 관리자들 중 사실상 표준으로 자리잡았다.
+맥 OS 에서 프로그래밍을 하는 프로그래머들에게는 거의 필수적인 도구이다.
+apt-get 등 리눅스의 패키지 관리자들과 사용법이 비슷해서 쉽게 사용할 수 있다는 장점이 있다.
+
+\vspace{3mm}
+\noindent
+설치 명령어 : 
+/bin/bash -c "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/inst\\all/HEAD/install.sh)"
+\begin{figure}[!htbp]
+	\begin{center}
+		\includegraphics[width=300pt]{hw3_homebrew.png}
+	\end{center}
+\end{figure}
+
+\subsection{iTerm2 설치}
+맥OS에서 공식 터미널 대신 사용할 수 있는 가상 터미널 애플리케이션이다.
+기본 터미널보다 검색 및 하이라이트, 복사, 붙여넣기 히스토리 등 다양한 기능을 제공한다.
+
+\vspace{3mm}
+\noindent
+설치 명령어 : 
+brew cask install iterm2
+
+\newpage
+
+\subsection{자체 개발환경에서 작성한 hw3 파일 리스트}
+\begin{figure}[!htbp]
+	\begin{center}
+		\includegraphics[width=300pt]{hw3_file_list.png}
+	\end{center}
+\end{figure}
+
+\subsection{자체 개발환경에서 작성한 Makefile}
+\begin{figure}[!htbp]
+	\begin{center}
+		\includegraphics[width=300pt]{hw3_makefile.png}
+	\end{center}
+\end{figure}
+
+\newpage
+
+\subsection{자체 개발환경에서 테스트 진행 모습}
+\begin{itemize}
+	\item {test1}
+	\begin{figure}[!htbp]
+		\begin{center}
+			\includegraphics[width=215pt]{hw3_maketest1.png}
+		\end{center}
+	\end{figure}
+	\item {test2}
+	\begin{figure}[!htbp]
+		\begin{center}
+			\includegraphics[width=215pt]{hw3_maketest1.png}
+		\end{center}
+	\end{figure}
+	\item {test3}
+	\begin{figure}[!htbp]
+		\begin{center}
+			\includegraphics[width=215pt]{hw3_maketest1.png}
+		\end{center}
+	\end{figure}
 \end{itemize}
 
 \end{document}
