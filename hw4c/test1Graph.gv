@@ -1,3 +1,8 @@
 digraph{
 edge [color=black]
-int}
+"main" -> "func"
+"main" -> "aa"
+"main" -> "aa"
+"main" -> "bb"
+"main" -> "cc"
+}
