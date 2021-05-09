@@ -6,6 +6,7 @@ char func[10];
 char call[10][10];
 int i=0;
 int checkfunc=0;
+FILE * graph = fopen("test1Graph.gv","w");
 %}
 %token IDENTIFIER NUMBER INT
 %start start_state
@@ -17,7 +18,7 @@ start_state
 		int j=0;
 		for(j;j<i;j++)
 		{
-			printf("%s -> %s\n", func, call[j]);
+			fprintf(graph, "\"%s\" -> \"%s\"\n", func, call[j]);
 		}
 	}
 	;
@@ -115,7 +116,12 @@ initializer
 %%
 int main()
 {
+	fprintf(graph,"digraph{\n");
+    fprintf(graph,"edge [color=black]\n");
 	yyparse();
+	fprintf(graph,"}");
+	fclose(graph);
+    system("dot -Tjpg test1Graph.gv -o test1Graph.jpg");
 	return 0;
 }
 void yyerror(const char *str)
