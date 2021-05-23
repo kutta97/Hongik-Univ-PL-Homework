@@ -1,9 +1,0 @@
-female(mary).
-female(jane).
-female(kate).
-female(mia).
-female(lisa).
-male(john).
-male(ian).
-male(joe).
-male(hue).
