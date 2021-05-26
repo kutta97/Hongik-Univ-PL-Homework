@@ -1,4 +1,5 @@
 hanoi(N):-
+	N > 0 ->
 	move(N,1,2,3).	
 
 move(N,Start,End,Via):-
