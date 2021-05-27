@@ -1,4 +1,4 @@
-quickSort([]).
+quickSort([]):-!.
 quickSort(List):-
 	qSortHelper(List,_).
 
@@ -11,13 +11,13 @@ qSortHelper([Pivot|List],Sorted):-
 	merge(SortedLesser,[Pivot|SortedGreater],Sorted),
 	writeMerge(SortedLesser,Pivot,SortedGreater).
 
-divide(_,[],[],[]).
+divide(_,[],[],[]):-!.
 divide(Pivot,[H|List],Lesser,[H|Greater]):-
 	Pivot =< H -> divide(Pivot,List,Lesser,Greater).
 divide(Pivot,[H|List],[H|Lesser],Greater):-
 	Pivot > H -> divide(Pivot,List,Lesser,Greater).
 
-writeDevide(_,[],[]).
+writeDevide(_,[],[]):-!.
 writeDevide(Pivot,Lesser,Greater):-
 	write('divide = '), write(Pivot), write(' | '),
 	write(Lesser), write(Greater), nl.
