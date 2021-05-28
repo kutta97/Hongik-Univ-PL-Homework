@@ -19,7 +19,10 @@ path(X,Z,[X|W],D):-
 shortestPath(X,X,[X,X],0):- !.
 shortestPath(X,Y,MinP,MinD):-
     findall([D,P],path(X,Y,P,D),Set),
-    sort(Set,Sorted),
+	getMin(Set,MinD,MinP).
+
+getMin(Set,MinD,MinP):-
+	sort(Set,Sorted),
     Sorted = [[MinD,MinP]|_].
 
 sp(X,Y):-
